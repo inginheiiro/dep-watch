@@ -1,0 +1,11 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    access: proxy
+    # Use container name (DNS) for bridge networking on macOS
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true

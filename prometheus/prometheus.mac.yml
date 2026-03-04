@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 60s
+  evaluation_interval: 60s
+
+alerting:
+  alertmanagers: []
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'infra-collector'
+    static_configs:
+      # Use container name (DNS) for bridge networking on macOS
+      - targets: ['collector:8000']
+    scrape_interval: 30s
+    scrape_timeout: 10s

@@ -1,0 +1,336 @@
+# =============================================================================
+# Dependency Monitor - Projects Configuration
+# =============================================================================
+# Edit this file to add/remove projects to monitor.
+# The collector will auto-detect: license, stars, forks, security score, etc.
+#
+# Format:
+#   project_id:
+#     github: owner/repo
+#     libraries_io: platform/package (optional, for dependents count)
+#     category: infrastructure|frontend|backend
+#     ecosystem: npm|maven|pypi|go (for OSV vulnerability queries)
+#     current_version: x.y.z (version you're using - for CVE detection)
+#
+# Known licenses (for repos GitHub doesn't detect correctly):
+#   Add to 'known_licenses' section below
+# =============================================================================
+
+projects:
+  # ---------------------------------------------------------------------------
+  # Infrastructure
+  # ---------------------------------------------------------------------------
+  redis:
+    github: redis/redis
+    libraries_io: go/github.com%2Fredis%2Fgo-redis
+    category: infrastructure
+    ecosystem: null
+    current_version: null  # not used (using Garnet)
+
+  valkey:
+    github: valkey-io/valkey
+    libraries_io: go/github.com%2Fvalkey-io%2Fvalkey-go
+    category: infrastructure
+    ecosystem: null
+    current_version: null  # not used (using Garnet)
+
+  dragonfly:
+    github: dragonflydb/dragonfly
+    libraries_io: null
+    category: infrastructure
+    ecosystem: null
+    current_version: null  # not used (using Garnet)
+
+  postgresql:
+    github: postgres/postgres
+    libraries_io: npm/pg
+    category: infrastructure
+    ecosystem: null  # OS-level, no package ecosystem
+    current_version: "16"
+
+  rabbitmq:
+    github: rabbitmq/rabbitmq-server
+    libraries_io: npm/amqplib
+    category: infrastructure
+    ecosystem: null
+    current_version: "3.13"
+
+  minio:
+    github: minio/minio
+    libraries_io: go/github.com%2Fminio%2Fminio-go
+    category: infrastructure
+    ecosystem: Go
+    current_version: null  # using :latest
+
+  garnet:
+    github: microsoft/garnet
+    libraries_io: null
+    category: infrastructure
+    ecosystem: null
+    current_version: "latest"
+
+  seaweedfs:
+    github: seaweedfs/seaweedfs
+    libraries_io: null
+    category: infrastructure
+    ecosystem: null
+    current_version: null
+
+  nginx-ingress:
+    github: kubernetes/ingress-nginx
+    libraries_io: null
+    category: infrastructure
+    ecosystem: null
+    current_version: null
+
+  docker:
+    github: moby/moby
+    libraries_io: go/github.com%2Fdocker%2Fdocker
+    category: infrastructure
+    ecosystem: null
+    current_version: null
+
+  kong:
+    github: Kong/kong
+    libraries_io: null
+    category: infrastructure
+    ecosystem: null
+    current_version: null
+
+  # ---------------------------------------------------------------------------
+  # Frontend (npm ecosystem)
+  # ---------------------------------------------------------------------------
+  vue:
+    github: vuejs/core
+    libraries_io: npm/vue
+    category: frontend
+    ecosystem: npm
+    current_version: "3.5.13"
+
+  primevue:
+    github: primefaces/primevue
+    libraries_io: npm/primevue
+    category: frontend
+    ecosystem: npm
+    current_version: "4.3.9"
+
+  typescript:
+    github: microsoft/TypeScript
+    libraries_io: npm/typescript
+    category: frontend
+    ecosystem: npm
+    current_version: "5.8.3"
+
+  vite:
+    github: vitejs/vite
+    libraries_io: npm/vite
+    category: frontend
+    ecosystem: npm
+    current_version: "6.2.7"
+
+  pinia:
+    github: vuejs/pinia
+    libraries_io: npm/pinia
+    category: frontend
+    ecosystem: npm
+    current_version: "2.2.6"
+
+  axios:
+    github: axios/axios
+    libraries_io: npm/axios
+    category: frontend
+    ecosystem: npm
+    current_version: "1.8.4"
+
+  vitest:
+    github: vitest-dev/vitest
+    libraries_io: npm/vitest
+    category: frontend
+    ecosystem: npm
+    current_version: "3.2.4"
+
+  vue-router:
+    github: vuejs/router
+    libraries_io: npm/vue-router
+    category: frontend
+    ecosystem: npm
+    current_version: "4.4.5"
+
+  vueuse:
+    github: vueuse/vueuse
+    libraries_io: npm/%40vueuse%2Fcore
+    category: frontend
+    ecosystem: npm
+    current_version: null  # not used
+
+  eslint:
+    github: eslint/eslint
+    libraries_io: npm/eslint
+    category: frontend
+    ecosystem: npm
+    current_version: "9.17.0"
+
+  prettier:
+    github: prettier/prettier
+    libraries_io: npm/prettier
+    category: frontend
+    ecosystem: npm
+    current_version: "3.4.2"
+
+  tailwindcss:
+    github: tailwindlabs/tailwindcss
+    libraries_io: npm/tailwindcss
+    category: frontend
+    ecosystem: npm
+    current_version: null  # not used
+
+  zod:
+    github: colinhacks/zod
+    libraries_io: npm/zod
+    category: frontend
+    ecosystem: npm
+    current_version: null  # not used
+
+  # ---------------------------------------------------------------------------
+  # Backend (Maven ecosystem)
+  # ---------------------------------------------------------------------------
+  spring-boot:
+    github: spring-projects/spring-boot
+    libraries_io: maven/org.springframework.boot:spring-boot
+    category: backend
+    ecosystem: Maven
+    current_version: "3.5.0"
+
+  spring-security:
+    github: spring-projects/spring-security
+    libraries_io: maven/org.springframework.security:spring-security-core
+    category: backend
+    ecosystem: Maven
+    current_version: "6.5.0"  # managed by Spring Boot 3.5.0
+
+  hibernate:
+    github: hibernate/hibernate-orm
+    libraries_io: maven/org.hibernate.orm:hibernate-core
+    category: backend
+    ecosystem: Maven
+    current_version: "6.6.4"
+
+  lombok:
+    github: projectlombok/lombok
+    libraries_io: maven/org.projectlombok:lombok
+    category: backend
+    ecosystem: Maven
+    current_version: "1.18.36"  # managed by Spring Boot BOM
+
+# =============================================================================
+# Known Licenses
+# =============================================================================
+# GitHub sometimes returns NOASSERTION for licenses it doesn't recognize.
+# Add repos here with their actual license for correct risk classification.
+#
+# Risk levels:
+#   0 = low    (MIT, Apache, BSD, PostgreSQL, MPL)
+#   1 = medium (AGPL, GPL - copyleft)
+#   2 = high   (BSL, SSPL, Elastic - not OSI approved)
+# =============================================================================
+
+known_licenses:
+  postgres/postgres:
+    license: PostgreSQL
+    risk: 0
+    risk_label: low
+    note: BSD-like permissive license
+
+  redis/redis:
+    license: RSALv2/SSPL/AGPL-3.0
+    risk: 1
+    risk_label: medium
+    note: Tri-license since v8, AGPL option is OSI approved
+
+  valkey-io/valkey:
+    license: BSD-3-Clause
+    risk: 0
+    risk_label: low
+    note: Redis fork, fully permissive
+
+  dragonflydb/dragonfly:
+    license: BSL-1.1
+    risk: 2
+    risk_label: high
+    note: Business Source License - restricts hosting, converts to Apache 2.0 in 2029
+
+  rabbitmq/rabbitmq-server:
+    license: MPL-2.0
+    risk: 0
+    risk_label: low
+    note: Mozilla Public License
+
+  projectlombok/lombok:
+    license: MIT
+    risk: 0
+    risk_label: low
+    note: MIT License
+
+  microsoft/garnet:
+    license: MIT
+    risk: 0
+    risk_label: low
+    note: MIT License
+
+# =============================================================================
+# License Classifications (Reference)
+# =============================================================================
+# These are used for automatic classification when GitHub detects the license.
+# You don't need to edit this unless adding new license types.
+
+license_classifications:
+  high_risk:
+    - SSPL-1.0
+    - BSL-1.1
+    - BUSL-1.1
+    - Elastic-2.0
+    - Commons-Clause
+    - RSALv2
+    - RSAL
+    - Confluent-Community
+    - Timescale
+    - MariaDB-BSL-1.1
+    - PolyForm-Noncommercial-1.0.0
+    - PolyForm-Shield-1.0.0
+
+  medium_risk:
+    - AGPL-3.0
+    - AGPL-3.0-only
+    - AGPL-3.0-or-later
+    - GPL-3.0
+    - GPL-3.0-only
+    - GPL-3.0-or-later
+    - GPL-2.0
+    - GPL-2.0-only
+    - GPL-2.0-or-later
+    - EUPL-1.2
+    - OSL-3.0
+    - CDDL-1.0
+    - EPL-2.0
+    - EPL-1.0
+
+  low_risk:
+    - MIT
+    - Apache-2.0
+    - BSD-2-Clause
+    - BSD-3-Clause
+    - BSD-3-Clause-Clear
+    - ISC
+    - Unlicense
+    - CC0-1.0
+    - 0BSD
+    - WTFPL
+    - Zlib
+    - PostgreSQL
+    - MPL-2.0
+    - LGPL-2.1
+    - LGPL-3.0
+    - Artistic-2.0
+    - BSL-1.0
+    - CC-BY-4.0
+    - BlueOak-1.0.0

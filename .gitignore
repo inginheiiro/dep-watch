@@ -1,0 +1,16 @@
+# Environment
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Docker volumes (if local)
+data/
+
+# IDE
+.idea/
+.vscode/
+*.swp

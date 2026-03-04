@@ -1,0 +1,107 @@
+groups:
+  - name: dependency_health
+    interval: 5m
+    rules:
+      # -- License Alerts ---------------------------------------------------
+      - alert: LicenseChanged
+        expr: dep_license_changed == 1
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "License changed for {{ $labels.project }}"
+          description: "The license of {{ $labels.project }} ({{ $labels.category }}) has changed since monitoring started. Investigate immediately."
+
+      - alert: HighRiskLicense
+        expr: dep_license_risk == 2
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High-risk license on {{ $labels.project }}"
+          description: "{{ $labels.project }} uses license '{{ $labels.license }}' which is not OSI-approved (BSL, SSPL, Elastic, etc.)."
+
+      # -- Security Alerts --------------------------------------------------
+      - alert: CriticalVulnerabilities
+        expr: dep_vulnerabilities{severity="critical"} > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical CVEs in {{ $labels.project }}"
+          description: "{{ $labels.project }} ({{ $labels.category }}) has {{ $value }} critical vulnerabilities."
+
+      - alert: LowSecurityScore
+        expr: dep_security_score < 4
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low OpenSSF score for {{ $labels.project }}"
+          description: "{{ $labels.project }} has an OpenSSF Scorecard of {{ $value }}/10. Review security practices."
+
+      # -- Health Alerts ----------------------------------------------------
+      - alert: LowHealthScore
+        expr: dep_health_score < 50
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low health score for {{ $labels.project }}"
+          description: "{{ $labels.project }} health score is {{ $value }}/100. Check vulnerabilities and maintenance status."
+
+      - alert: LowSustainabilityScore
+        expr: dep_sustainability_score < 40
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low sustainability for {{ $labels.project }}"
+          description: "{{ $labels.project }} sustainability score is {{ $value }}/100. High risk of abandonment or license change."
+
+      # -- Maintenance Alerts -----------------------------------------------
+      - alert: ProjectArchived
+        expr: dep_is_archived == 1
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.project }} is archived"
+          description: "{{ $labels.project }} has been archived on GitHub. Find an alternative."
+
+      - alert: ProjectInactive
+        expr: dep_days_since_commit > 180
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.project }} inactive for 6+ months"
+          description: "{{ $labels.project }} has had no commits in {{ $value }} days. May be abandoned."
+
+      - alert: SingleMaintainer
+        expr: dep_contributors <= 1
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Bus factor risk for {{ $labels.project }}"
+          description: "{{ $labels.project }} has only {{ $value }} contributor(s). Single point of failure."
+
+      # -- System Alerts ----------------------------------------------------
+      - alert: CollectionStale
+        expr: (time() - collector_last_run_timestamp) > 172800
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Collector has not run in 48h"
+          description: "Last collection was {{ $value | humanizeDuration }} ago. Check the collector service."
+
+      - alert: CollectionErrors
+        expr: increase(collector_errors_total[24h]) > 5
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Multiple collection errors"
+          description: "{{ $value }} collection errors in the last 24h. Check API keys and connectivity."

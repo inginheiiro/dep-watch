@@ -1,0 +1,42 @@
+# macOS override file for bridge networking.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.mac.yml up -d
+#
+# This overrides network_mode from 'host' to bridge networking,
+# since Docker Desktop for macOS does not support network_mode: host.
+
+services:
+  collector:
+    network_mode: ""
+    ports:
+      - "8000:8000"
+    networks:
+      - infra-net
+
+  prometheus:
+    network_mode: ""
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.mac.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+    networks:
+      - infra-net
+    depends_on:
+      - collector
+
+  grafana:
+    network_mode: ""
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SERVER_HTTP_PORT=3000
+    volumes:
+      - ./grafana/provisioning/datasources/datasource.mac.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+    networks:
+      - infra-net
+
+networks:
+  infra-net:
+    driver: bridge

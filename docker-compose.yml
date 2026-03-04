@@ -1,0 +1,54 @@
+# Unified Docker Compose for infra-monitor.
+#
+# Usage:
+#   Linux:  docker compose up -d
+#   macOS:  docker compose -f docker-compose.yml -f docker-compose.mac.yml up -d
+
+services:
+  # Collector - Fetches data from GitHub, OpenSSF, OSV.dev, Libraries.io
+  collector:
+    build:
+      context: ./collector
+    container_name: infra-collector
+    network_mode: host
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - LIBRARIES_IO_KEY=${LIBRARIES_IO_KEY:-}
+      - COLLECT_INTERVAL=${COLLECT_INTERVAL:-86400}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - RATE_LIMIT_SECONDS=${RATE_LIMIT_SECONDS:-30}
+    volumes:
+      - collector-data:/data
+    restart: unless-stopped
+
+  # Prometheus - Scrapes metrics from collector
+  prometheus:
+    build:
+      context: ./prometheus
+    container_name: infra-prometheus
+    network_mode: host
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=90d'
+      - '--web.listen-address=:9090'
+    restart: unless-stopped
+
+  # Grafana - Dashboards
+  grafana:
+    build:
+      context: ./grafana
+    container_name: infra-grafana
+    network_mode: host
+    environment:
+      - GF_SERVER_HTTP_PORT=3001
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+volumes:
+  collector-data:
+    driver: local

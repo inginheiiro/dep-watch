@@ -1,4 +1,6 @@
-# Infra Monitor
+# Dep Watch
+
+![Dep Watch demo](img.gif)
 
 Monitors open-source dependencies for license changes, security vulnerabilities, maintenance activity, and sustainability risk. Runs as 3 Docker containers (Collector + Prometheus + Grafana).
 

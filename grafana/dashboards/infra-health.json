@@ -26,7 +26,7 @@
       "id": 1,
       "options": {
         "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
-        "content": "# Dependency Health Monitor\nAutomatic monitoring of **27 open-source dependencies** across license risk, security vulnerabilities, maintenance activity, and sustainability.",
+        "content": "# Dependency Health Monitor\nCritical issues first, technical detail second. Use the hotlist to decide what needs action now.",
         "mode": "markdown"
       },
       "transparent": true,
@@ -38,17 +38,16 @@
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 2 },
       "id": 100,
       "panels": [],
-      "title": "EXECUTIVE SUMMARY",
+      "title": "Executive Summary",
       "type": "row"
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "Total projects currently being monitored",
       "fieldConfig": {
         "defaults": {
-          "color": { "fixedColor": "#3274D9", "mode": "fixed" },
+          "color": { "fixedColor": "#4C78A8", "mode": "fixed" },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "#3274D9", "value": null }] },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#4C78A8", "value": null }] },
           "unit": "short"
         },
         "overrides": []
@@ -72,24 +71,19 @@
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "Average health score across all monitored projects",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "decimals": 0,
           "mappings": [],
-          "max": 100,
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#F2495C", "value": null },
-              { "color": "#FF9830", "value": 50 },
-              { "color": "#FADE2A", "value": 70 },
-              { "color": "#73BF69", "value": 85 }
+              { "color": "#1F8A70", "value": null },
+              { "color": "#E0A100", "value": 1 },
+              { "color": "#D44A3A", "value": 3 }
             ]
           },
-          "unit": "none"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -97,7 +91,7 @@
       "id": 102,
       "options": {
         "colorMode": "background_solid",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
@@ -106,30 +100,24 @@
         "wideLayout": true
       },
       "pluginVersion": "10.2.2",
-      "targets": [{ "expr": "avg(dep_health_score{category=~\"$category\", project=~\"$project\"})", "refId": "A" }],
-      "title": "Avg Health Score",
+      "targets": [{ "expr": "sum(dep_vulnerabilities{category=~\"$category\", project=~\"$project\", severity=\"critical\"}) or vector(0)", "refId": "A" }],
+      "title": "Critical CVEs",
       "type": "stat"
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "Average sustainability score across all monitored projects",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "decimals": 0,
           "mappings": [],
-          "max": 100,
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#F2495C", "value": null },
-              { "color": "#FF9830", "value": 50 },
-              { "color": "#FADE2A", "value": 70 },
-              { "color": "#73BF69", "value": 85 }
+              { "color": "#1F8A70", "value": null },
+              { "color": "#D44A3A", "value": 1 }
             ]
           },
-          "unit": "none"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -137,7 +125,7 @@
       "id": 103,
       "options": {
         "colorMode": "background_solid",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
@@ -146,13 +134,12 @@
         "wideLayout": true
       },
       "pluginVersion": "10.2.2",
-      "targets": [{ "expr": "avg(dep_sustainability_score{category=~\"$category\", project=~\"$project\"})", "refId": "A" }],
-      "title": "Avg Sustainability",
+      "targets": [{ "expr": "sum(dep_license_changed{category=~\"$category\", project=~\"$project\"}) or vector(0)", "refId": "A" }],
+      "title": "License Changes",
       "type": "stat"
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "Total critical + high vulnerabilities across all projects",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -160,9 +147,8 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#73BF69", "value": null },
-              { "color": "#FF9830", "value": 1 },
-              { "color": "#F2495C", "value": 5 }
+              { "color": "#1F8A70", "value": null },
+              { "color": "#D44A3A", "value": 1 }
             ]
           },
           "unit": "short"
@@ -182,13 +168,12 @@
         "wideLayout": true
       },
       "pluginVersion": "10.2.2",
-      "targets": [{ "expr": "sum(dep_vulnerabilities{category=~\"$category\", project=~\"$project\", severity=~\"critical|high\"}) or vector(0)", "refId": "A" }],
-      "title": "Critical/High CVEs",
+      "targets": [{ "expr": "sum(dep_is_archived{category=~\"$category\", project=~\"$project\"}) or vector(0)", "refId": "A" }],
+      "title": "Archived Projects",
       "type": "stat"
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "Projects with high or unknown license risk",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -196,9 +181,9 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#73BF69", "value": null },
-              { "color": "#FF9830", "value": 1 },
-              { "color": "#F2495C", "value": 3 }
+              { "color": "#1F8A70", "value": null },
+              { "color": "#E0A100", "value": 1 },
+              { "color": "#D44A3A", "value": 3 }
             ]
           },
           "unit": "short"
@@ -218,21 +203,17 @@
         "wideLayout": true
       },
       "pluginVersion": "10.2.2",
-      "targets": [{ "expr": "count(dep_license_risk{category=~\"$category\", project=~\"$project\"} >= 2) or vector(0)", "refId": "A" }],
-      "title": "License Risks (High+)",
+      "targets": [{ "expr": "sum(dep_license_risk{category=~\"$category\", project=~\"$project\"} >= bool 2) or vector(0)", "refId": "A" }],
+      "title": "High License Risk",
       "type": "stat"
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "When metrics were last collected successfully",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
           "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [{ "color": "#73BF69", "value": null }]
-          },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#4C78A8", "value": null }] },
           "unit": "dateTimeFromNow"
         },
         "overrides": []
@@ -259,12 +240,12 @@
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
       "id": 110,
       "panels": [],
-      "title": "PROJECT OVERVIEW",
+      "title": "Immediate Action",
       "type": "row"
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "Comprehensive view of all projects. Click column headers to sort.",
+      "description": "Critical-first hotlist. Higher priority means it needs attention sooner.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -278,10 +259,9 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#F2495C", "value": null },
-              { "color": "#FF9830", "value": 50 },
-              { "color": "#FADE2A", "value": 70 },
-              { "color": "#73BF69", "value": 85 }
+              { "color": "#D44A3A", "value": null },
+              { "color": "#E0A100", "value": 50 },
+              { "color": "#1F8A70", "value": 85 }
             ]
           }
         },
@@ -289,52 +269,85 @@
           {
             "matcher": { "id": "byName", "options": "Project" },
             "properties": [
-              { "id": "custom.width", "value": 160 },
-              { "id": "custom.align", "value": "left" },
-              { "id": "custom.filterable", "value": true }
+              { "id": "custom.width", "value": 150 },
+              { "id": "custom.align", "value": "left" }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "Category" },
             "properties": [
-              { "id": "custom.width", "value": 110 },
-              { "id": "custom.align", "value": "center" }
+              { "id": "custom.width", "value": 100 }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Health" },
+            "matcher": { "id": "byName", "options": "Priority" },
             "properties": [
               { "id": "custom.width", "value": 80 },
-              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } },
-              { "id": "max", "value": 100 },
-              { "id": "min", "value": 0 }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Sustainability" },
-            "properties": [
-              { "id": "custom.width", "value": 80 },
-              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } },
-              { "id": "max", "value": 100 },
-              { "id": "min", "value": 0 }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Security" },
-            "properties": [
-              { "id": "custom.width", "value": 80 },
-              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } },
-              { "id": "max", "value": 10 },
-              { "id": "min", "value": 0 },
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } },
               { "id": "thresholds", "value": {
                 "mode": "absolute",
                 "steps": [
-                  { "color": "#F2495C", "value": null },
-                  { "color": "#FF9830", "value": 4 },
-                  { "color": "#FADE2A", "value": 6 },
-                  { "color": "#73BF69", "value": 8 }
+                  { "color": "#1F8A70", "value": null },
+                  { "color": "#E0A100", "value": 50 },
+                  { "color": "#D44A3A", "value": 200 }
                 ]
               }}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Critical CVEs" },
+            "properties": [
+              { "id": "custom.width", "value": 90 },
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } },
+              { "id": "thresholds", "value": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "#1F8A70", "value": null },
+                  { "color": "#E0A100", "value": 1 },
+                  { "color": "#D44A3A", "value": 2 }
+                ]
+              }}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "High CVEs" },
+            "properties": [
+              { "id": "custom.width", "value": 80 },
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } },
+              { "id": "thresholds", "value": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "#1F8A70", "value": null },
+                  { "color": "#E0A100", "value": 1 },
+                  { "color": "#D44A3A", "value": 3 }
+                ]
+              }}
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "License Changed" },
+            "properties": [
+              { "id": "custom.width", "value": 110 },
+              { "id": "mappings", "value": [
+                { "type": "value", "options": {
+                  "0": { "text": "No", "color": "#1F8A70", "index": 0 },
+                  "1": { "text": "Changed", "color": "#D44A3A", "index": 1 }
+                }}
+              ]},
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Archived" },
+            "properties": [
+              { "id": "custom.width", "value": 85 },
+              { "id": "mappings", "value": [
+                { "type": "value", "options": {
+                  "0": { "text": "Active", "color": "#1F8A70", "index": 0 },
+                  "1": { "text": "Archived", "color": "#D44A3A", "index": 1 }
+                }}
+              ]},
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } }
             ]
           },
           {
@@ -343,140 +356,123 @@
               { "id": "custom.width", "value": 100 },
               { "id": "mappings", "value": [
                 { "type": "value", "options": {
-                  "0": { "text": "LOW", "color": "#73BF69", "index": 0 },
-                  "1": { "text": "MEDIUM", "color": "#FF9830", "index": 1 },
-                  "2": { "text": "HIGH", "color": "#F2495C", "index": 2 },
-                  "3": { "text": "UNKNOWN", "color": "#8F3BB8", "index": 3 }
+                  "0": { "text": "Low", "color": "#1F8A70", "index": 0 },
+                  "1": { "text": "Medium", "color": "#E0A100", "index": 1 },
+                  "2": { "text": "High", "color": "#D44A3A", "index": 2 },
+                  "3": { "text": "Unknown", "color": "#6B7280", "index": 3 }
                 }}
               ]},
               { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "CVEs" },
+            "matcher": { "id": "byName", "options": "Health" },
             "properties": [
-              { "id": "custom.width", "value": 60 },
-              { "id": "thresholds", "value": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "#73BF69", "value": null },
-                  { "color": "#FF9830", "value": 1 },
-                  { "color": "#F2495C", "value": 3 }
-                ]
-              }},
-              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } }
+              { "id": "custom.width", "value": 75 },
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } },
+              { "id": "max", "value": 100 },
+              { "id": "min", "value": 0 }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "Days Idle" },
             "properties": [
-              { "id": "custom.width", "value": 80 },
+              { "id": "custom.width", "value": 85 },
               { "id": "unit", "value": "d" },
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } },
               { "id": "thresholds", "value": {
                 "mode": "absolute",
                 "steps": [
-                  { "color": "#73BF69", "value": null },
-                  { "color": "#FADE2A", "value": 30 },
-                  { "color": "#FF9830", "value": 90 },
-                  { "color": "#F2495C", "value": 180 }
+                  { "color": "#1F8A70", "value": null },
+                  { "color": "#E0A100", "value": 90 },
+                  { "color": "#D44A3A", "value": 180 }
                 ]
-              }},
-              { "id": "custom.cellOptions", "value": { "type": "color-text" } }
+              }}
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Contributors" },
+            "matcher": { "id": "byName", "options": "Versions Behind" },
             "properties": [
-              { "id": "custom.width", "value": 100 },
+              { "id": "custom.width", "value": 110 },
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } },
               { "id": "thresholds", "value": {
                 "mode": "absolute",
                 "steps": [
-                  { "color": "#F2495C", "value": null },
-                  { "color": "#FF9830", "value": 5 },
-                  { "color": "#FADE2A", "value": 20 },
-                  { "color": "#73BF69", "value": 50 }
+                  { "color": "#1F8A70", "value": null },
+                  { "color": "#E0A100", "value": 1 },
+                  { "color": "#D44A3A", "value": 3 }
                 ]
-              }},
-              { "id": "custom.cellOptions", "value": { "type": "color-text" } }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Stars" },
-            "properties": [
-              { "id": "custom.width", "value": 80 },
-              { "id": "unit", "value": "short" }
+              }}
             ]
           }
         ]
       },
-      "gridPos": { "h": 14, "w": 24, "x": 0, "y": 8 },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 8 },
       "id": 111,
       "options": {
         "cellHeight": "sm",
         "footer": { "countRows": false, "enablePagination": false, "fields": "", "reducer": ["sum"], "show": false },
         "showHeader": true,
-        "sortBy": [{ "desc": false, "displayName": "Health" }]
+        "sortBy": [{ "desc": true, "displayName": "Priority" }]
       },
       "pluginVersion": "10.2.2",
       "targets": [
         {
-          "expr": "dep_health_score{category=~\"$category\", project=~\"$project\"}",
+          "expr": "1000 * dep_license_changed{category=~\"$category\", project=~\"$project\"} + 900 * dep_is_archived{category=~\"$category\", project=~\"$project\"} + 500 * sum by (project, category) (dep_vulnerabilities{category=~\"$category\", project=~\"$project\", severity=\"critical\"}) + 200 * sum by (project, category) (dep_vulnerabilities{category=~\"$category\", project=~\"$project\", severity=\"high\"}) + 80 * (dep_license_risk{category=~\"$category\", project=~\"$project\"} >= bool 2) + clamp_min(50 - dep_health_score{category=~\"$category\", project=~\"$project\"}, 0)",
           "format": "table",
           "instant": true,
-          "legendFormat": "",
-          "refId": "health"
+          "refId": "priority"
         },
         {
-          "expr": "dep_sustainability_score{category=~\"$category\", project=~\"$project\"}",
+          "expr": "sum by (project, category) (dep_vulnerabilities{category=~\"$category\", project=~\"$project\", severity=\"critical\"})",
           "format": "table",
           "instant": true,
-          "legendFormat": "",
-          "refId": "sustainability"
+          "refId": "critical"
         },
         {
-          "expr": "dep_security_score{category=~\"$category\", project=~\"$project\"}",
+          "expr": "sum by (project, category) (dep_vulnerabilities{category=~\"$category\", project=~\"$project\", severity=\"high\"})",
           "format": "table",
           "instant": true,
-          "legendFormat": "",
-          "refId": "security"
+          "refId": "high"
+        },
+        {
+          "expr": "dep_license_changed{category=~\"$category\", project=~\"$project\"}",
+          "format": "table",
+          "instant": true,
+          "refId": "changed"
+        },
+        {
+          "expr": "dep_is_archived{category=~\"$category\", project=~\"$project\"}",
+          "format": "table",
+          "instant": true,
+          "refId": "archived"
         },
         {
           "expr": "dep_license_risk{category=~\"$category\", project=~\"$project\"}",
           "format": "table",
           "instant": true,
-          "legendFormat": "",
           "refId": "license"
         },
         {
-          "expr": "sum by (project, category) (dep_vulnerabilities{category=~\"$category\", project=~\"$project\", severity=~\"critical|high\"})",
+          "expr": "dep_health_score{category=~\"$category\", project=~\"$project\"}",
           "format": "table",
           "instant": true,
-          "legendFormat": "",
-          "refId": "cves"
+          "refId": "health"
         },
         {
           "expr": "dep_days_since_commit{category=~\"$category\", project=~\"$project\"}",
           "format": "table",
           "instant": true,
-          "legendFormat": "",
-          "refId": "activity"
+          "refId": "days"
         },
         {
-          "expr": "dep_contributors{category=~\"$category\", project=~\"$project\"}",
+          "expr": "dep_version_behind{category=~\"$category\", project=~\"$project\"}",
           "format": "table",
           "instant": true,
-          "legendFormat": "",
-          "refId": "contributors"
-        },
-        {
-          "expr": "dep_github_stars{category=~\"$category\", project=~\"$project\"}",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "",
-          "refId": "stars"
+          "refId": "version"
         }
       ],
-      "title": "All Projects Overview",
+      "title": "Critical-First Hotlist",
       "transformations": [
         {
           "id": "seriesToColumns",
@@ -495,6 +491,7 @@
               "Time 6": true,
               "Time 7": true,
               "Time 8": true,
+              "Time 9": true,
               "__name__": true,
               "__name__ 1": true,
               "__name__ 2": true,
@@ -504,13 +501,6 @@
               "__name__ 6": true,
               "__name__ 7": true,
               "__name__ 8": true,
-              "category 2": true,
-              "category 3": true,
-              "category 4": true,
-              "category 5": true,
-              "category 6": true,
-              "category 7": true,
-              "category 8": true,
               "job": true,
               "job 1": true,
               "job 2": true,
@@ -529,7 +519,325 @@
               "instance 6": true,
               "instance 7": true,
               "instance 8": true,
-              "license": true,
+              "category 2": true,
+              "category 3": true,
+              "category 4": true,
+              "category 5": true,
+              "category 6": true,
+              "category 7": true,
+              "category 8": true,
+              "severity": true,
+              "severity 1": true
+            },
+            "indexByName": {
+              "project": 0,
+              "category 1": 1,
+              "Value #priority": 2,
+              "Value #critical": 3,
+              "Value #high": 4,
+              "Value #changed": 5,
+              "Value #archived": 6,
+              "Value #license": 7,
+              "Value #health": 8,
+              "Value #days": 9,
+              "Value #version": 10
+            },
+            "renameByName": {
+              "project": "Project",
+              "category 1": "Category",
+              "Value #priority": "Priority",
+              "Value #critical": "Critical CVEs",
+              "Value #high": "High CVEs",
+              "Value #changed": "License Changed",
+              "Value #archived": "Archived",
+              "Value #license": "License Risk",
+              "Value #health": "Health",
+              "Value #days": "Days Idle",
+              "Value #version": "Versions Behind"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 20 },
+      "id": 120,
+      "panels": [],
+      "title": "Technical View",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#D44A3A", "value": null },
+              { "color": "#E0A100", "value": 50 },
+              { "color": "#1F8A70", "value": 85 }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 21 },
+      "id": 121,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "left",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "text": { "titleSize": 12, "valueSize": 14 },
+        "valueMode": "color"
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [{ "expr": "bottomk(12, dep_health_score{category=~\"$category\", project=~\"$project\"})", "legendFormat": "{{project}}", "refId": "A" }],
+      "title": "Lowest Health",
+      "type": "bargauge"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#D44A3A", "value": null },
+              { "color": "#E0A100", "value": 50 },
+              { "color": "#1F8A70", "value": 85 }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 21 },
+      "id": 122,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "left",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "text": { "titleSize": 12, "valueSize": 14 },
+        "valueMode": "color"
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [{ "expr": "bottomk(12, dep_sustainability_score{category=~\"$category\", project=~\"$project\"})", "legendFormat": "{{project}}", "refId": "A" }],
+      "title": "Lowest Sustainability",
+      "type": "bargauge"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#1F8A70", "value": null },
+              { "color": "#E0A100", "value": 1 },
+              { "color": "#D44A3A", "value": 3 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 21 },
+      "id": 123,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "left",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "text": { "titleSize": 12, "valueSize": 14 },
+        "valueMode": "color"
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [{ "expr": "sort_desc(sum by (project, category) (dep_vulnerabilities{category=~\"$category\", project=~\"$project\", severity=~\"critical|high\"}))", "legendFormat": "{{project}}", "refId": "A" }],
+      "title": "Critical + High CVEs",
+      "type": "bargauge"
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "description": "Broader project view for triage and comparison.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "center",
+            "cellOptions": { "type": "auto" },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#D44A3A", "value": null },
+              { "color": "#E0A100", "value": 50 },
+              { "color": "#1F8A70", "value": 85 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Project" },
+            "properties": [
+              { "id": "custom.width", "value": 150 },
+              { "id": "custom.align", "value": "left" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Health" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } },
+              { "id": "max", "value": 100 },
+              { "id": "min", "value": 0 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Sustainability" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } },
+              { "id": "max", "value": 100 },
+              { "id": "min", "value": 0 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Security" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } },
+              { "id": "max", "value": 10 },
+              { "id": "min", "value": 0 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "License Risk" },
+            "properties": [
+              { "id": "mappings", "value": [
+                { "type": "value", "options": {
+                  "0": { "text": "Low", "color": "#1F8A70", "index": 0 },
+                  "1": { "text": "Medium", "color": "#E0A100", "index": 1 },
+                  "2": { "text": "High", "color": "#D44A3A", "index": 2 },
+                  "3": { "text": "Unknown", "color": "#6B7280", "index": 3 }
+                }}
+              ]},
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "CVEs" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } },
+              { "id": "thresholds", "value": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "#1F8A70", "value": null },
+                  { "color": "#E0A100", "value": 1 },
+                  { "color": "#D44A3A", "value": 3 }
+                ]
+              }}
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 29 },
+      "id": 124,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "enablePagination": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": [{ "desc": false, "displayName": "Health" }]
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [
+        { "expr": "dep_health_score{category=~\"$category\", project=~\"$project\"}", "format": "table", "instant": true, "refId": "health" },
+        { "expr": "dep_sustainability_score{category=~\"$category\", project=~\"$project\"}", "format": "table", "instant": true, "refId": "sustainability" },
+        { "expr": "dep_security_score{category=~\"$category\", project=~\"$project\"}", "format": "table", "instant": true, "refId": "security" },
+        { "expr": "dep_license_risk{category=~\"$category\", project=~\"$project\"}", "format": "table", "instant": true, "refId": "license" },
+        { "expr": "sum by (project, category) (dep_vulnerabilities{category=~\"$category\", project=~\"$project\", severity=~\"critical|high\"})", "format": "table", "instant": true, "refId": "cves" },
+        { "expr": "dep_days_since_commit{category=~\"$category\", project=~\"$project\"}", "format": "table", "instant": true, "refId": "days" },
+        { "expr": "dep_contributors{category=~\"$category\", project=~\"$project\"}", "format": "table", "instant": true, "refId": "contributors" },
+        { "expr": "dep_github_stars{category=~\"$category\", project=~\"$project\"}", "format": "table", "instant": true, "refId": "stars" },
+        { "expr": "dep_version_behind{category=~\"$category\", project=~\"$project\"}", "format": "table", "instant": true, "refId": "version" }
+      ],
+      "title": "Project Detail",
+      "transformations": [
+        { "id": "seriesToColumns", "options": { "byField": "project" } },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
+              "Time 5": true,
+              "Time 6": true,
+              "Time 7": true,
+              "Time 8": true,
+              "Time 9": true,
+              "__name__": true,
+              "__name__ 1": true,
+              "__name__ 2": true,
+              "__name__ 3": true,
+              "__name__ 4": true,
+              "__name__ 5": true,
+              "__name__ 6": true,
+              "__name__ 7": true,
+              "__name__ 8": true,
+              "job": true,
+              "job 1": true,
+              "job 2": true,
+              "job 3": true,
+              "job 4": true,
+              "job 5": true,
+              "job 6": true,
+              "job 7": true,
+              "job 8": true,
+              "instance": true,
+              "instance 1": true,
+              "instance 2": true,
+              "instance 3": true,
+              "instance 4": true,
+              "instance 5": true,
+              "instance 6": true,
+              "instance 7": true,
+              "instance 8": true,
+              "category 2": true,
+              "category 3": true,
+              "category 4": true,
+              "category 5": true,
+              "category 6": true,
+              "category 7": true,
+              "category 8": true,
               "severity": true
             },
             "indexByName": {
@@ -540,9 +848,10 @@
               "Value #security": 4,
               "Value #license": 5,
               "Value #cves": 6,
-              "Value #activity": 7,
+              "Value #days": 7,
               "Value #contributors": 8,
-              "Value #stars": 9
+              "Value #stars": 9,
+              "Value #version": 10
             },
             "renameByName": {
               "project": "Project",
@@ -552,9 +861,10 @@
               "Value #security": "Security",
               "Value #license": "License Risk",
               "Value #cves": "CVEs",
-              "Value #activity": "Days Idle",
+              "Value #days": "Days Idle",
               "Value #contributors": "Contributors",
-              "Value #stars": "Stars"
+              "Value #stars": "Stars",
+              "Value #version": "Versions Behind"
             }
           }
         }
@@ -563,192 +873,31 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 },
-      "id": 10,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 41 },
+      "id": 130,
       "panels": [],
-      "title": "RISK ALERTS",
+      "title": "Versions & Activity",
       "type": "row"
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "License risk auto-detected from SPDX identifier.\n\n- **HIGH (red)**: SSPL, BSL, Elastic - not OSI approved\n- **MEDIUM (orange)**: AGPL, GPL - copyleft\n- **LOW (green)**: MIT, Apache, BSD - permissive\n- **UNKNOWN (purple)**: Not detected",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "mappings": [
-            {
-              "options": {
-                "0": { "color": "#73BF69", "index": 0, "text": "LOW" },
-                "1": { "color": "#FF9830", "index": 1, "text": "MEDIUM" },
-                "2": { "color": "#F2495C", "index": 2, "text": "HIGH" },
-                "3": { "color": "#8F3BB8", "index": 3, "text": "UNKNOWN" }
-              },
-              "type": "value"
-            }
-          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#73BF69", "value": null },
-              { "color": "#FF9830", "value": 1 },
-              { "color": "#F2495C", "value": 2 },
-              { "color": "#8F3BB8", "value": 3 }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 10, "w": 8, "x": 0, "y": 23 },
-      "id": 11,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "text": { "titleSize": 12, "valueSize": 14 },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "sort_desc(dep_license_risk{category=~\"$category\", project=~\"$project\"})",
-          "legendFormat": "{{project}} ({{license}})",
-          "refId": "A"
-        }
-      ],
-      "title": "License Risk",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "Detects when a project's license changes.\n\nRed = License changed since monitoring started (investigate immediately!)",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [
-            {
-              "options": {
-                "0": { "color": "#73BF69", "index": 0, "text": "OK" },
-                "1": { "color": "#F2495C", "index": 1, "text": "CHANGED!" }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#73BF69", "value": null },
-              { "color": "#F2495C", "value": 1 }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 10, "w": 8, "x": 8, "y": 23 },
-      "id": 12,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "text": { "titleSize": 12, "valueSize": 14 },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "dep_license_changed{category=~\"$category\", project=~\"$project\"}",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "License Changes",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "Projects archived on GitHub = no longer maintained. Find alternatives!",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [
-            {
-              "options": {
-                "0": { "color": "#73BF69", "index": 0, "text": "Active" },
-                "1": { "color": "#F2495C", "index": 1, "text": "ARCHIVED" }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#73BF69", "value": null },
-              { "color": "#F2495C", "value": 1 }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 10, "w": 8, "x": 16, "y": 23 },
-      "id": 13,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "text": { "titleSize": 12, "valueSize": 14 },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "dep_is_archived{category=~\"$category\", project=~\"$project\"}",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Archived Projects",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 33 },
-      "id": 20,
-      "panels": [],
-      "title": "SCORES",
-      "type": "row"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "**Sustainability Score** (0-100)\n\nLong-term viability:\n- License risk (35%)\n- Bus factor (25%)\n- Recent activity (20%)\n- Funding (10%)\n- Popularity (10%)",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#F2495C", "value": null },
-              { "color": "#FF9830", "value": 50 },
-              { "color": "#FADE2A", "value": 70 },
-              { "color": "#73BF69", "value": 85 }
+              { "color": "#1F8A70", "value": null },
+              { "color": "#E0A100", "value": 1 },
+              { "color": "#D44A3A", "value": 3 }
             ]
           },
-          "unit": "none"
+          "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 14, "w": 12, "x": 0, "y": 34 },
-      "id": 21,
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 42 },
+      "id": 131,
       "options": {
         "displayMode": "gradient",
         "maxVizHeight": 300,
@@ -763,320 +912,29 @@
         "valueMode": "color"
       },
       "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "sort(dep_sustainability_score{category=~\"$category\", project=~\"$project\"})",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Sustainability Score (lower = at risk)",
-      "type": "bargauge"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "**Health Score** (0-100)\n\nCurrent security & maintenance:\n- OpenSSF Score (40%)\n- Vulnerabilities (30%)\n- Archived status (20%)\n- Release freshness (10%)",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#F2495C", "value": null },
-              { "color": "#FF9830", "value": 50 },
-              { "color": "#FADE2A", "value": 70 },
-              { "color": "#73BF69", "value": 85 }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 14, "w": 12, "x": 12, "y": 34 },
-      "id": 22,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "left",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "text": { "titleSize": 12, "valueSize": 14 },
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "sort(dep_health_score{category=~\"$category\", project=~\"$project\"})",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Health Score (lower = security concerns)",
-      "type": "bargauge"
-    },
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 48 },
-      "id": 30,
-      "panels": [],
-      "title": "SECURITY",
-      "type": "row"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "**OpenSSF Scorecard** (0-10)\n\nSecurity best practices: code review, branch protection, CI/CD, dependency updates, signed releases, SAST.\n\nHigher = better.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "max": 10,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#F2495C", "value": null },
-              { "color": "#FF9830", "value": 4 },
-              { "color": "#FADE2A", "value": 6 },
-              { "color": "#73BF69", "value": 8 }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 14, "w": 12, "x": 0, "y": 49 },
-      "id": 31,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "left",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "text": { "titleSize": 12, "valueSize": 14 },
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "sort(dep_security_score{category=~\"$category\", project=~\"$project\"})",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Security Score (OpenSSF)",
-      "type": "bargauge"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "Critical and high severity CVEs from OSV.dev.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#73BF69", "value": null },
-              { "color": "#FF9830", "value": 1 },
-              { "color": "#F2495C", "value": 3 }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 14, "w": 12, "x": 12, "y": 49 },
-      "id": 32,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "left",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "text": { "titleSize": 12, "valueSize": 14 },
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "sort_desc(dep_vulnerabilities{category=~\"$category\", project=~\"$project\", severity=~\"critical|high\"})",
-          "legendFormat": "{{project}} ({{severity}})",
-          "refId": "A"
-        }
-      ],
-      "title": "Vulnerabilities (Critical/High)",
-      "type": "bargauge"
-    },
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 63 },
-      "id": 33,
-      "panels": [],
-      "title": "VERSIONS",
-      "type": "row"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "How many major/minor versions behind the latest release.\n\n- 0: Up to date\n- 1-2: Minor updates available\n- 3+: Significantly behind",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#73BF69", "value": null },
-              { "color": "#FADE2A", "value": 1 },
-              { "color": "#FF9830", "value": 3 },
-              { "color": "#F2495C", "value": 5 }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 12, "w": 8, "x": 0, "y": 64 },
-      "id": 36,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "left",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "text": { "titleSize": 12, "valueSize": 14 },
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "sort_desc(dep_version_behind{category=~\"$category\", project=~\"$project\"} > 0)",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
+      "targets": [{ "expr": "sort_desc(dep_version_behind{category=~\"$category\", project=~\"$project\"})", "legendFormat": "{{project}}", "refId": "A" }],
       "title": "Versions Behind",
       "type": "bargauge"
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "Version configured in your projects.yml for CVE detection.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [{ "color": "#3274D9", "value": null }]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 12, "w": 8, "x": 8, "y": 64 },
-      "id": 34,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "text": { "titleSize": 12, "valueSize": 12 },
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "dep_current_version{category=~\"$category\", project=~\"$project\"}",
-          "legendFormat": "{{project}}: {{version}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Current Versions",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "Latest release from GitHub. Compare with current to see available updates.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [{ "color": "#73BF69", "value": null }]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 12, "w": 8, "x": 16, "y": 64 },
-      "id": 35,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "text": { "titleSize": 12, "valueSize": 12 },
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "dep_latest_version{category=~\"$category\", project=~\"$project\"}",
-          "legendFormat": "{{project}}: {{version}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Latest Versions",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 76 },
-      "id": 40,
-      "panels": [],
-      "title": "ACTIVITY & MAINTENANCE",
-      "type": "row"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "How long since the last commit.\n\n- Green (<30d): Active\n- Yellow (30-90d): Slowing\n- Orange (90-180d): Stalling\n- Red (>180d): Likely abandoned",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#73BF69", "value": null },
-              { "color": "#FADE2A", "value": 30 },
-              { "color": "#FF9830", "value": 90 },
-              { "color": "#F2495C", "value": 180 }
+              { "color": "#1F8A70", "value": null },
+              { "color": "#E0A100", "value": 90 },
+              { "color": "#D44A3A", "value": 180 }
             ]
           },
           "unit": "d"
         },
         "overrides": []
       },
-      "gridPos": { "h": 14, "w": 8, "x": 0, "y": 77 },
-      "id": 41,
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 42 },
+      "id": 132,
       "options": {
         "displayMode": "gradient",
         "maxVizHeight": 300,
@@ -1091,38 +949,29 @@
         "valueMode": "color"
       },
       "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "sort_desc(dep_days_since_commit{category=~\"$category\", project=~\"$project\"})",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Days Since Last Commit",
+      "targets": [{ "expr": "sort_desc(dep_days_since_commit{category=~\"$category\", project=~\"$project\"})", "legendFormat": "{{project}}", "refId": "A" }],
+      "title": "Days Since Commit",
       "type": "bargauge"
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "Days since last release/tag on GitHub.\n\nHigh values may indicate the project ships infrequently or is winding down.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#73BF69", "value": null },
-              { "color": "#FADE2A", "value": 60 },
-              { "color": "#FF9830", "value": 180 },
-              { "color": "#F2495C", "value": 365 }
+              { "color": "#1F8A70", "value": null },
+              { "color": "#E0A100", "value": 1 },
+              { "color": "#D44A3A", "value": 5 }
             ]
           },
-          "unit": "d"
+          "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 14, "w": 8, "x": 8, "y": 77 },
-      "id": 43,
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 42 },
+      "id": 133,
       "options": {
         "displayMode": "gradient",
         "maxVizHeight": 300,
@@ -1137,332 +986,20 @@
         "valueMode": "color"
       },
       "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "sort_desc(dep_days_since_release{category=~\"$category\", project=~\"$project\"})",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Days Since Last Release",
-      "type": "bargauge"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "Number of contributors (bus factor).\n\n- 1-3: High risk (single point of failure)\n- 4-10: Medium risk\n- 10+: Distributed maintainership",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#F2495C", "value": null },
-              { "color": "#FF9830", "value": 5 },
-              { "color": "#FADE2A", "value": 20 },
-              { "color": "#73BF69", "value": 50 }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 14, "w": 8, "x": 16, "y": 77 },
-      "id": 42,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "left",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "text": { "titleSize": 12, "valueSize": 14 },
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "sort(dep_contributors{category=~\"$category\", project=~\"$project\"})",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Contributors (Bus Factor)",
+      "targets": [{ "expr": "topk(10, collector_errors_total)", "legendFormat": "{{project}} ({{source}})", "refId": "A" }],
+      "title": "Collection Errors",
       "type": "bargauge"
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 91 },
-      "id": 50,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 50 },
+      "id": 140,
       "panels": [],
-      "title": "COMMUNITY & ECOSYSTEM",
+      "title": "Trends",
       "type": "row"
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "GitHub stars - community interest and awareness.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "hue",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "lineWidth": 1,
-            "scaleDistribution": { "log": 10, "type": "log" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [{ "color": "green", "value": null }]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 12, "w": 8, "x": 0, "y": 92 },
-      "id": 51,
-      "options": {
-        "barRadius": 0.1,
-        "barWidth": 0.8,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": { "calcs": ["max"], "displayMode": "hidden", "placement": "right", "showLegend": false },
-        "orientation": "horizontal",
-        "showValue": "always",
-        "stacking": "none",
-        "tooltip": { "mode": "single", "sort": "none" },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 100
-      },
-      "targets": [
-        {
-          "expr": "topk(15, dep_github_stars{category=~\"$category\", project=~\"$project\"})",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "GitHub Stars (Top 15)",
-      "type": "barchart"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "GitHub forks - developer interest and fork readiness if project is abandoned.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "hue",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "lineWidth": 1,
-            "scaleDistribution": { "log": 10, "type": "log" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [{ "color": "blue", "value": null }]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 12, "w": 8, "x": 8, "y": 92 },
-      "id": 52,
-      "options": {
-        "barRadius": 0.1,
-        "barWidth": 0.8,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": { "calcs": ["max"], "displayMode": "hidden", "placement": "right", "showLegend": false },
-        "orientation": "horizontal",
-        "showValue": "always",
-        "stacking": "none",
-        "tooltip": { "mode": "single", "sort": "none" },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 100
-      },
-      "targets": [
-        {
-          "expr": "topk(15, dep_github_forks{category=~\"$category\", project=~\"$project\"})",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "GitHub Forks (Top 15)",
-      "type": "barchart"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "Dependents from Libraries.io - how many projects rely on this package.\nMore dependents = more ecosystem importance.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "hue",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "lineWidth": 1,
-            "scaleDistribution": { "log": 10, "type": "log" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [{ "color": "purple", "value": null }]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 12, "w": 8, "x": 16, "y": 92 },
-      "id": 53,
-      "options": {
-        "barRadius": 0.1,
-        "barWidth": 0.8,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": { "calcs": ["max"], "displayMode": "hidden", "placement": "right", "showLegend": false },
-        "orientation": "horizontal",
-        "showValue": "always",
-        "stacking": "none",
-        "tooltip": { "mode": "single", "sort": "none" },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 100
-      },
-      "targets": [
-        {
-          "expr": "topk(15, dep_dependents{category=~\"$category\", project=~\"$project\"})",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Dependents (Top 15)",
-      "type": "barchart"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "Libraries.io SourceRank - composite score of project quality, community, and maintenance.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#F2495C", "value": null },
-              { "color": "#FF9830", "value": 10 },
-              { "color": "#FADE2A", "value": 20 },
-              { "color": "#73BF69", "value": 25 }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 12, "w": 12, "x": 0, "y": 104 },
-      "id": 55,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "left",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "text": { "titleSize": 12, "valueSize": 14 },
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "sort(dep_source_rank{category=~\"$category\", project=~\"$project\"})",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "SourceRank (Libraries.io)",
-      "type": "bargauge"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "Projects with funding (GitHub Sponsors, Open Collective, etc.) are more likely to be maintained long-term.",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [
-            {
-              "options": {
-                "0": { "color": "#F2495C", "index": 0, "text": "No Funding" },
-                "1": { "color": "#73BF69", "index": 1, "text": "Funded" }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#F2495C", "value": null },
-              { "color": "#73BF69", "value": 1 }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 12, "w": 12, "x": 12, "y": 104 },
-      "id": 54,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "text": { "titleSize": 12, "valueSize": 14 },
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "dep_has_funding{category=~\"$category\", project=~\"$project\"}",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Funding Status",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 116 },
-      "id": 60,
-      "panels": [],
-      "title": "TRENDS",
-      "type": "row"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "Track sustainability score changes over time. Drops may indicate license changes, maintainer departure, or reduced activity.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -1474,54 +1011,46 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 10,
+            "fillOpacity": 12,
             "gradientMode": "none",
             "hideFrom": { "legend": false, "tooltip": false, "viz": false },
             "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 2,
-            "pointSize": 5,
+            "pointSize": 4,
             "scaleDistribution": { "type": "linear" },
             "showPoints": "auto",
             "spanNulls": false,
             "stacking": { "group": "A", "mode": "none" },
             "thresholdsStyle": { "mode": "area" }
           },
-          "mappings": [],
           "max": 100,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "rgba(242, 73, 92, 0.1)", "value": null },
-              { "color": "rgba(255, 152, 48, 0.1)", "value": 50 },
-              { "color": "rgba(250, 222, 42, 0.1)", "value": 70 },
-              { "color": "rgba(115, 191, 105, 0.1)", "value": 85 }
+              { "color": "rgba(212, 74, 58, 0.08)", "value": null },
+              { "color": "rgba(224, 161, 0, 0.08)", "value": 50 },
+              { "color": "rgba(31, 138, 112, 0.08)", "value": 85 }
             ]
           },
           "unit": "none"
         },
         "overrides": []
       },
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 117 },
-      "id": 61,
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 51 },
+      "id": 141,
       "options": {
         "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "right", "showLegend": true },
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
-      "targets": [
-        {
-          "expr": "dep_sustainability_score{category=~\"$category\", project=~\"$project\"}",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Sustainability Score Over Time",
+      "pluginVersion": "10.2.2",
+      "targets": [{ "expr": "dep_health_score{category=~\"$category\", project=~\"$project\"}", "legendFormat": "{{project}}", "refId": "A" }],
+      "title": "Health Over Time",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "prometheus" },
-      "description": "Track health score changes over time. Drops may indicate new vulnerabilities, security score decreases, or archival.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -1533,107 +1062,46 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 10,
+            "fillOpacity": 12,
             "gradientMode": "none",
             "hideFrom": { "legend": false, "tooltip": false, "viz": false },
             "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 2,
-            "pointSize": 5,
+            "pointSize": 4,
             "scaleDistribution": { "type": "linear" },
             "showPoints": "auto",
             "spanNulls": false,
             "stacking": { "group": "A", "mode": "none" },
             "thresholdsStyle": { "mode": "area" }
           },
-          "mappings": [],
           "max": 100,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "rgba(242, 73, 92, 0.1)", "value": null },
-              { "color": "rgba(255, 152, 48, 0.1)", "value": 50 },
-              { "color": "rgba(250, 222, 42, 0.1)", "value": 70 },
-              { "color": "rgba(115, 191, 105, 0.1)", "value": 85 }
+              { "color": "rgba(212, 74, 58, 0.08)", "value": null },
+              { "color": "rgba(224, 161, 0, 0.08)", "value": 50 },
+              { "color": "rgba(31, 138, 112, 0.08)", "value": 85 }
             ]
           },
           "unit": "none"
         },
         "overrides": []
       },
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 127 },
-      "id": 62,
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 51 },
+      "id": 142,
       "options": {
         "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "right", "showLegend": true },
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
-      "targets": [
-        {
-          "expr": "dep_health_score{category=~\"$category\", project=~\"$project\"}",
-          "legendFormat": "{{project}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Health Score Over Time",
+      "pluginVersion": "10.2.2",
+      "targets": [{ "expr": "dep_sustainability_score{category=~\"$category\", project=~\"$project\"}", "legendFormat": "{{project}}", "refId": "A" }],
+      "title": "Sustainability Over Time",
       "type": "timeseries"
     },
     {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 137 },
-      "id": 70,
-      "panels": [],
-      "title": "SYSTEM",
-      "type": "row"
-    },
-    {
       "datasource": { "type": "prometheus" },
-      "description": "Collection errors by project and API source",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "#73BF69", "value": null },
-              { "color": "#FF9830", "value": 1 },
-              { "color": "#F2495C", "value": 5 }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 138 },
-      "id": 72,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "left",
-        "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "text": { "titleSize": 12, "valueSize": 14 },
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "expr": "topk(10, collector_errors_total)",
-          "legendFormat": "{{project}} ({{source}})",
-          "refId": "A"
-        }
-      ],
-      "title": "Collection Errors (Top 10)",
-      "type": "bargauge"
-    },
-    {
-      "datasource": { "type": "prometheus" },
-      "description": "Total errors, errors rate over time, and error breakdown by source API.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -1645,42 +1113,33 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 30,
+            "fillOpacity": 25,
             "gradientMode": "hue",
             "hideFrom": { "legend": false, "tooltip": false, "viz": false },
             "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 2,
-            "pointSize": 5,
+            "pointSize": 4,
             "scaleDistribution": { "type": "linear" },
             "showPoints": "never",
             "spanNulls": false,
             "stacking": { "group": "A", "mode": "normal" },
             "thresholdsStyle": { "mode": "off" }
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [{ "color": "green", "value": null }]
-          },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#4C78A8", "value": null }] },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 138 },
-      "id": 74,
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 60 },
+      "id": 143,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
-      "targets": [
-        {
-          "expr": "sum by (source) (increase(collector_errors_total[1h]))",
-          "legendFormat": "{{source}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Errors Over Time (by source)",
+      "pluginVersion": "10.2.2",
+      "targets": [{ "expr": "sum by (source) (increase(collector_errors_total[1h]))", "legendFormat": "{{source}}", "refId": "A" }],
+      "title": "Errors Over Time",
       "type": "timeseries"
     }
   ],
@@ -1748,6 +1207,6 @@
   "timezone": "",
   "title": "Dependency Health Monitor",
   "uid": "dep-health",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }

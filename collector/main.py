@@ -11,6 +11,8 @@ import json
 import logging
 import threading
 import asyncio
+import re
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -37,6 +39,7 @@ from metrics import (
     source_rank,
     current_version_info,
     latest_version_info,
+    version_behind,
     has_funding,
     health_score,
     sustainability_score,
@@ -55,12 +58,6 @@ LOG_FORMAT = os.getenv(
 )
 logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO), format=LOG_FORMAT)
 logger = logging.getLogger("infra-monitor")
-
-# =============================================================================
-# FastAPI App
-# =============================================================================
-
-app = FastAPI(title="Infra Dependency Monitor")
 
 # Paths
 CONFIG_FILE = Path(__file__).parent / "projects.yml"
@@ -118,6 +115,8 @@ PROJECTS, KNOWN_LICENSES, HIGH_RISK, MEDIUM_RISK, LOW_RISK = _unpack_config(conf
 logger.info("Loaded %d projects from config", len(PROJECTS))
 
 collector = Collector()
+_collection_thread: Optional[threading.Thread] = None
+_collection_thread_lock = threading.Lock()
 
 # =============================================================================
 # License History
@@ -170,6 +169,37 @@ def get_osv_package_name(project_id: str, cfg: dict) -> Optional[str]:
     return project_id
 
 
+def calculate_version_behind(current_version: str, latest_version: str) -> int:
+    """Estimate how many major/minor steps the current version is behind."""
+    if not current_version or not latest_version:
+        return 0
+
+    def _parse(version: str) -> Optional[tuple[int, int, int]]:
+        match = re.search(r"(\d+)(?:\.(\d+))?(?:\.(\d+))?", str(version))
+        if not match:
+            return None
+        major = int(match.group(1))
+        minor = int(match.group(2) or 0)
+        patch = int(match.group(3) or 0)
+        return major, minor, patch
+
+    current = _parse(current_version)
+    latest = _parse(latest_version)
+    if not current or not latest or latest <= current:
+        return 0
+
+    current_major, current_minor, current_patch = current
+    latest_major, latest_minor, latest_patch = latest
+
+    if latest_major > current_major:
+        return (latest_major - current_major) + max(latest_minor - current_minor, 0)
+
+    if latest_minor > current_minor:
+        return latest_minor - current_minor
+
+    return 1 if latest_patch > current_patch else 0
+
+
 # =============================================================================
 # Collection
 # =============================================================================
@@ -191,7 +221,7 @@ async def collect_all() -> None:
             async def empty_osv():
                 return {"critical": 0, "high": 0, "medium": 0, "low": 0, "total": 0}
 
-            github_data, scorecard_val, osv_vulns, libs_data = await asyncio.gather(
+            github_raw, scorecard_raw, osv_raw, libs_raw = await asyncio.gather(
                 collector.fetch_github(repo),
                 collector.fetch_scorecard(repo),
                 (
@@ -203,14 +233,10 @@ async def collect_all() -> None:
                 return_exceptions=True,
             )
 
-            if isinstance(github_data, Exception):
-                github_data = {}
-            if isinstance(scorecard_val, Exception):
-                scorecard_val = 0
-            if isinstance(osv_vulns, Exception):
-                osv_vulns = {}
-            if isinstance(libs_data, Exception):
-                libs_data = {}
+            github_data = github_raw if isinstance(github_raw, dict) else {}
+            scorecard_val = float(scorecard_raw) if isinstance(scorecard_raw, (int, float)) else 0.0
+            osv_vulns = osv_raw if isinstance(osv_raw, dict) else {}
+            libs_data = libs_raw if isinstance(libs_raw, dict) else {}
 
             # License classification
             detected_license = github_data.get("license", "unknown")
@@ -301,6 +327,11 @@ async def collect_all() -> None:
                     latest_version_info.labels(
                         project=project_id, category=cat, version=latest_ver,
                     ).set(1)
+                    version_behind.labels(project=project_id, category=cat).set(
+                        calculate_version_behind(current_version, latest_ver),
+                    )
+                else:
+                    version_behind.labels(project=project_id, category=cat).set(0)
 
             # Funding
             has_funding.labels(project=project_id, category=cat).set(
@@ -345,7 +376,27 @@ def run_collection_loop() -> None:
         time.sleep(interval)
 
 
-threading.Thread(target=run_collection_loop, daemon=True).start()
+def start_collection_loop() -> None:
+    global _collection_thread
+
+    with _collection_thread_lock:
+        if _collection_thread and _collection_thread.is_alive():
+            return
+        _collection_thread = threading.Thread(target=run_collection_loop, daemon=True)
+        _collection_thread.start()
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    start_collection_loop()
+    yield
+
+
+# =============================================================================
+# FastAPI App
+# =============================================================================
+
+app = FastAPI(title="Infra Dependency Monitor", lifespan=lifespan)
 
 # =============================================================================
 # API Endpoints

@@ -283,7 +283,7 @@ Restart everything and alerts will flow to your channels.
 ## Running Tests
 
 ```bash
-pip install pytest
+pip install pytest pytest-asyncio
 pytest collector/tests/ -v
 ```
 

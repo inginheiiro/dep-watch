@@ -65,7 +65,7 @@ class Collector:
             headers["Authorization"] = f"token {self.github_token}"
 
         async def _do():
-            async with httpx.AsyncClient(timeout=30) as client:
+            async with httpx.AsyncClient(timeout=30, verify=False) as client:
                 r = await client.get(
                     f"https://api.github.com/repos/{repo}", headers=headers,
                 )
@@ -143,7 +143,7 @@ class Collector:
         """OpenSSF Scorecard score (0-10)."""
 
         async def _do():
-            async with httpx.AsyncClient(timeout=30) as client:
+            async with httpx.AsyncClient(timeout=30, verify=False) as client:
                 r = await client.get(
                     f"https://api.securityscorecards.dev/projects/github.com/{repo}",
                 )
@@ -173,7 +173,7 @@ class Collector:
             return vulns
 
         async def _do():
-            async with httpx.AsyncClient(timeout=30) as client:
+            async with httpx.AsyncClient(timeout=30, verify=False) as client:
                 query = {"package": {"name": package_name, "ecosystem": ecosystem}}
                 if version:
                     query["version"] = version
@@ -231,7 +231,7 @@ class Collector:
             return {"source_rank": 0, "dependents": 0}
 
         async def _do():
-            async with httpx.AsyncClient(timeout=30) as client:
+            async with httpx.AsyncClient(timeout=30, verify=False) as client:
                 url = f"https://libraries.io/api/{package}"
                 params = {"api_key": self.libraries_io_key} if self.libraries_io_key else {}
                 r = await client.get(url, params=params)

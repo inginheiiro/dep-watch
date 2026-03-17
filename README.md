@@ -137,17 +137,28 @@ infra-monitor/
 
 ## Corporate Network / SSL Inspection (Zscaler et al.)
 
-Some corporate networks (Zscaler, Palo Alto SSL Inspection, BlueCoat, etc.) perform TLS interception by injecting a self-signed certificate into every HTTPS connection. Containers do not have the corporate CA in their trust store, so all outbound HTTPS requests fail with:
+> **This section describes the `bypass-ssl` branch.**
+> If you are running dep-watch inside a corporate network with TLS inspection (Zscaler, Palo Alto, BlueCoat, etc.), use that branch instead of `main`. It silently disables SSL certificate verification so the tool works without any manual CA configuration.
+>
+> ```bash
+> git checkout bypass-ssl
+> ```
+
+### Why is this needed?
+
+Corporate TLS inspection proxies intercept every HTTPS connection and re-sign it with a self-signed corporate CA certificate. Docker containers do not have that CA in their trust store, so every outbound HTTPS request fails:
 
 ```
 SSLError: certificate verify failed: self-signed certificate in certificate chain
 ```
 
-This affects two places:
+This breaks dep-watch in two places — during the Docker build (pip cannot reach PyPI) and at runtime (the collector cannot reach GitHub, Scorecard, OSV.dev, or Libraries.io).
 
-### 1. Docker build — `pip install` fails
+### What `bypass-ssl` changes
 
-The `collector/Dockerfile` passes `--trusted-host` flags to bypass SSL verification when fetching packages from PyPI:
+#### 1. Docker build — `pip install` fails
+
+`collector/Dockerfile` passes `--trusted-host` flags so pip skips SSL verification when fetching packages from PyPI:
 
 ```dockerfile
 RUN pip install --no-cache-dir \
@@ -156,15 +167,25 @@ RUN pip install --no-cache-dir \
     -r requirements.txt
 ```
 
-### 2. Runtime — API calls fail (GitHub, Scorecard, OSV, Libraries.io)
+#### 2. Runtime — all API calls fail
 
-All `httpx.AsyncClient` instances in `collector/collector.py` are created with `verify=False` to disable certificate verification entirely:
+Every `httpx.AsyncClient` in `collector/collector.py` is created with `verify=False`:
 
 ```python
 async with httpx.AsyncClient(timeout=30, verify=False) as client:
 ```
 
-> **Note:** `verify=False` disables SSL certificate verification for all outbound requests. This is a deliberate trade-off to operate inside environments where TLS inspection is in place and the corporate CA cannot be injected into the container. If you are running in a trusted network without SSL inspection, you can remove these flags to restore full certificate validation. The proper long-term fix is to copy the corporate CA certificate into the container image and set `SSL_CERT_FILE` accordingly.
+This covers all four data sources: GitHub, OpenSSF Scorecard, OSV.dev, and Libraries.io.
+
+### Trade-offs
+
+| | `main` | `bypass-ssl` |
+|---|---|---|
+| SSL certificate validation | Full | Disabled |
+| Works behind TLS inspection proxy | No | Yes |
+| Recommended for production / trusted networks | Yes | No |
+
+> **The proper long-term fix** is to copy the corporate CA certificate into the container image and point `SSL_CERT_FILE` at it. The `bypass-ssl` branch is a pragmatic workaround for environments where the CA cannot be easily distributed.
 
 ## Troubleshooting
 
